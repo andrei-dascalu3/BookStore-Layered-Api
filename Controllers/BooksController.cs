@@ -9,10 +9,10 @@ public class BooksController : ControllerBase
 {
     internal static readonly List<Book> Books =
     [
-        new Book { Id = 1, Title = "1984", AuthorId = 1, Genre = "Dystopian", Price = 9.99m, PublishedDate = new DateOnly(1949, 6, 8) },
-        new Book { Id = 2, Title = "Animal Farm", AuthorId = 1, Genre = "Satire", Price = 7.99m, PublishedDate = new DateOnly(1945, 8, 17) },
-        new Book { Id = 3, Title = "Pride and Prejudice", AuthorId = 2, Genre = "Romance", Price = 8.49m, PublishedDate = new DateOnly(1813, 1, 28) },
-        new Book { Id = 4, Title = "Adventures of Huckleberry Finn", AuthorId = 3, Genre = "Adventure", Price = 6.99m, PublishedDate = new DateOnly(1884, 12, 10) }
+        new Book { Id = 1, Title = "1984", AuthorName = "George Orwell", Genre = "Dystopian", Price = 9.99m, PublishedDate = new DateOnly(1949, 6, 8) },
+        new Book { Id = 2, Title = "Animal Farm", AuthorName = "George Orwell", Genre = "Satire", Price = 7.99m, PublishedDate = new DateOnly(1945, 8, 17) },
+        new Book { Id = 3, Title = "Pride and Prejudice", AuthorName = "Jane Austen", Genre = "Romance", Price = 8.49m, PublishedDate = new DateOnly(1813, 1, 28) },
+        new Book { Id = 4, Title = "Adventures of Huckleberry Finn", AuthorName = "Mark Twain", Genre = "Adventure", Price = 6.99m, PublishedDate = new DateOnly(1884, 12, 10) }
     ];
 
     private static int _nextId = 5;
@@ -36,9 +36,6 @@ public class BooksController : ControllerBase
     [HttpPost]
     public ActionResult<Book> Create(Book book)
     {
-        if (!AuthorsController.Authors.Any(a => a.Id == book.AuthorId))
-            return BadRequest($"Author with id {book.AuthorId} does not exist.");
-
         book.Id = _nextId++;
         Books.Add(book);
 
@@ -52,11 +49,8 @@ public class BooksController : ControllerBase
         if (book is null)
             return NotFound();
 
-        if (!AuthorsController.Authors.Any(a => a.Id == updatedBook.AuthorId))
-            return BadRequest($"Author with id {updatedBook.AuthorId} does not exist.");
-
         book.Title = updatedBook.Title;
-        book.AuthorId = updatedBook.AuthorId;
+        book.AuthorName = updatedBook.AuthorName;
         book.Genre = updatedBook.Genre;
         book.Price = updatedBook.Price;
         book.PublishedDate = updatedBook.PublishedDate;
