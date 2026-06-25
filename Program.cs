@@ -1,5 +1,4 @@
-
-namespace BookStore;
+namespace BookStore.Presentation;
 
 public class Program
 {
