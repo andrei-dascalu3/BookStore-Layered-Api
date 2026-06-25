@@ -1,5 +1,6 @@
 ﻿using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Models;
+using Mapster;
 
 namespace BookStore.Presentation.Services
 {
@@ -12,26 +13,31 @@ namespace BookStore.Presentation.Services
             _repository = repository;
         }
 
-        public IEnumerable<Book> GetAll()
+        public IEnumerable<BookDto> GetAll()
         {
             var books = _repository.GetAll();
-            return books;
+            var bookDto = books.Adapt<List<BookDto>>();
+
+            return bookDto;
         }
 
-        public Book? GetById(int id)
+        public BookDto? GetById(int id)
         {
             var book = _repository.GetById(id);
-            return book;
+            var bookDto = book.Adapt<BookDto>();
+
+            return bookDto;
         }
 
-        public Book Create(Book book)
+        public BookDto Create(Book book)
         {
             var createdBook = _repository.Create(book);
+            var createdBookDto = createdBook.Adapt<BookDto>();
 
-            return createdBook;
+            return createdBookDto;
         }
 
-        public Book? Update(int id, Book updatedBook)
+        public BookDto? Update(int id, Book updatedBook)
         {
             var book = _repository.GetById(id);
             if (book is null)
@@ -45,7 +51,9 @@ namespace BookStore.Presentation.Services
 
             _repository.Update(book);
 
-            return book;
+            var bookDto = book.Adapt<BookDto>();
+
+            return bookDto;
         }
 
         public bool Delete(int id)

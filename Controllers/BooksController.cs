@@ -16,14 +16,14 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<Book>> GetAll()
+    public ActionResult<IEnumerable<BookDto>> GetAll()
     {
         var books = _booksService.GetAll();
         return Ok(books);
     }
 
     [HttpGet("{id}")]
-    public ActionResult<Book> GetById(int id)
+    public ActionResult<BookDto> GetById(int id)
     {
         var book = _booksService.GetById(id);
         if (book is null)
@@ -33,7 +33,7 @@ public class BooksController : ControllerBase
     }
 
     [HttpPost]
-    public ActionResult<Book> Create(Book book)
+    public ActionResult<BookDto> Create(Book book)
     {
         var createdBook = _booksService.Create(book);
 
@@ -41,13 +41,13 @@ public class BooksController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public IActionResult Update(int id, Book updatedBook)
+    public ActionResult<BookDto> Update(int id, Book updatedBook)
     {
         var result = _booksService.Update(id, updatedBook);
         if (result is null)
             return NotFound();
 
-        return NoContent();
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]
