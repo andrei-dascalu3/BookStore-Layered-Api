@@ -1,5 +1,6 @@
 ﻿using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Models;
+using FluentValidation;
 using Mapster;
 
 namespace BookStore.Presentation.Services
@@ -7,10 +8,12 @@ namespace BookStore.Presentation.Services
     internal sealed class BooksService : IBooksService
     {
         private readonly IRepository _repository;
-        
-        public BooksService(IRepository repository)
+        private readonly IValidator<Book> _validator;
+
+        public BooksService(IRepository repository, IValidator<Book> validator)
         {
             _repository = repository;
+            _validator = validator;
         }
 
         public IEnumerable<BookDto> GetAll()
@@ -29,16 +32,25 @@ namespace BookStore.Presentation.Services
             return bookDto;
         }
 
-        public BookDto Create(Book book)
+        public BookDto? Create(Book book)
         {
-            var createdBook = _repository.Create(book);
-            var createdBookDto = createdBook.Adapt<BookDto>();
+            var validationResult = _validator.Validate(book);
+            if (validationResult.IsValid)
+            {
+                var createdBook = _repository.Create(book);
+                var createdBookDto = createdBook.Adapt<BookDto>();
+                return createdBookDto;
+            }
 
-            return createdBookDto;
+            return null;
         }
 
         public BookDto? Update(int id, Book updatedBook)
         {
+            var validationResult = _validator.Validate(updatedBook);
+            if (!validationResult.IsValid)
+                return null;
+            
             var book = _repository.GetById(id);
             if (book is null)
                 return null;

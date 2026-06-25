@@ -37,6 +37,9 @@ public class BooksController : ControllerBase
     {
         var createdBook = _booksService.Create(book);
 
+        if (createdBook is null)
+            return BadRequest("Invalid book data.");
+
         return CreatedAtAction(nameof(GetById), new { id = createdBook.Id }, createdBook);
     }
 
@@ -44,6 +47,7 @@ public class BooksController : ControllerBase
     public ActionResult<BookDto> Update(int id, Book updatedBook)
     {
         var result = _booksService.Update(id, updatedBook);
+
         if (result is null)
             return NotFound();
 

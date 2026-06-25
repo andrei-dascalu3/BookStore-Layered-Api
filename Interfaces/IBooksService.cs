@@ -6,7 +6,7 @@ namespace BookStore.Presentation.Interfaces
     {
         IEnumerable<BookDto> GetAll();
         BookDto? GetById(int id);
-        BookDto Create(Book book);
+        BookDto? Create(Book book);
         BookDto? Update(int id, Book updatedBook);
         bool Delete(int id);
     }

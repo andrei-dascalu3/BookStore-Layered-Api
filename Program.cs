@@ -1,6 +1,9 @@
 using BookStore.Presentation.Interfaces;
+using BookStore.Presentation.Models;
 using BookStore.Presentation.Repositories;
 using BookStore.Presentation.Services;
+using BookStore.Presentation.Validations;
+using FluentValidation;
 
 namespace BookStore.Presentation;
 
@@ -14,6 +17,7 @@ public class Program
         builder.Services.AddControllers();
         builder.Services.AddScoped<IBooksService, BooksService>();
         builder.Services.AddScoped<IRepository, Repository>();
+        builder.Services.AddScoped<IValidator<Book>, BookValidator>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
