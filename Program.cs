@@ -1,4 +1,5 @@
 using BookStore.Presentation.Interfaces;
+using BookStore.Presentation.Repositories;
 using BookStore.Presentation.Services;
 
 namespace BookStore.Presentation;
@@ -12,6 +13,7 @@ public class Program
         // Add services to the container.
         builder.Services.AddControllers();
         builder.Services.AddScoped<IBooksService, BooksService>();
+        builder.Services.AddScoped<IRepository, Repository>();
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
