@@ -1,8 +1,7 @@
-
 using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Services;
 
-namespace BookStore;
+namespace BookStore.Presentation;
 
 public class Program
 {
