@@ -16,9 +16,9 @@ namespace BookStore.Presentation.Services
             _validator = validator;
         }
 
-        public IEnumerable<BookDto> GetAll()
+        public async Task<IEnumerable<BookDto>> GetAllAsync()
         {
-            var books = _repository.GetAll();
+            var books = await _repository.GetAllAsync();
             var bookDto = books.Adapt<List<BookDto>>();
 
             return bookDto;

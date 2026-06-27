@@ -16,9 +16,9 @@ public class BooksController : ControllerBase
     }
 
     [HttpGet]
-    public ActionResult<IEnumerable<BookDto>> GetAll()
+    public async Task<ActionResult<IEnumerable<BookDto>>> GetAll()
     {
-        var books = _booksService.GetAll();
+        var books = await _booksService.GetAllAsync();
         return Ok(books);
     }
 

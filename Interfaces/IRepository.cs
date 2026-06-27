@@ -4,7 +4,7 @@ namespace BookStore.Presentation.Interfaces
 {
     public interface IRepository
     {
-        List<Book> GetAll();
+        Task<List<Book>> GetAllAsync();
         Book? GetById(int id);
         Book Create(Book book);
         void Update(Book book);

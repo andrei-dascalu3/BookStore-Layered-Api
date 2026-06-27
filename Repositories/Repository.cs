@@ -15,8 +15,9 @@ namespace BookStore.Presentation.Repositories
 
         private static int _nextId = 5;
 
-        public List<Book> GetAll()
+        public async Task<List<Book>> GetAllAsync()
         {
+            await Task.Delay(100); // Simulate async operation
             return Books;
         }
 
