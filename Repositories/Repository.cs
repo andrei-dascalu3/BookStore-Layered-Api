@@ -23,6 +23,7 @@ namespace BookStore.Presentation.Repositories
 
         public Book? GetById(int id)
         {
+            throw new InvalidOperationException("SQL error"); // Simulate Database failure
             return Books.FirstOrDefault(b => b.Id == id);
         }
 

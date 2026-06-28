@@ -1,4 +1,5 @@
 using BookStore.Presentation.Interfaces;
+using BookStore.Presentation.Middleware;
 using BookStore.Presentation.Models;
 using BookStore.Presentation.Repositories;
 using BookStore.Presentation.Services;
@@ -31,6 +32,8 @@ public class Program
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseMiddleware<ErrorHandlingMiddleware>();
 
         app.UseHttpsRedirection();
 
