@@ -1,3 +1,4 @@
+using System.Text;
 using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Middleware;
 using BookStore.Presentation.Models;
@@ -5,6 +6,8 @@ using BookStore.Presentation.Repositories;
 using BookStore.Presentation.Services;
 using BookStore.Presentation.Validations;
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Serilog;
 
 namespace BookStore.Presentation;
@@ -30,6 +33,31 @@ public class Program
         builder.Services.AddScoped<IRepository, Repository>();
         builder.Services.AddScoped<IValidator<Book>, BookValidator>();
 
+        builder.Services.AddSingleton<UserRepository>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+
+        builder.Services.AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
+            };
+        });
+
+        builder.Services.AddAuthorization();
+
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
@@ -49,6 +77,7 @@ public class Program
 
         app.UseHttpsRedirection();
 
+        app.UseAuthentication();
         app.UseAuthorization();
 
 

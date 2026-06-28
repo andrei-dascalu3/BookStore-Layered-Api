@@ -1,11 +1,13 @@
 using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStore.Presentation.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class BooksController : ControllerBase
 {
     private readonly IBooksService _booksService;
@@ -15,6 +17,7 @@ public class BooksController : ControllerBase
         _booksService = booksService;
     }
 
+    [AllowAnonymous]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<BookDto>>> GetAll()
     {
@@ -22,6 +25,7 @@ public class BooksController : ControllerBase
         return Ok(books);
     }
 
+    [AllowAnonymous]
     [HttpGet("{id}")]
     public ActionResult<BookDto> GetById(int id)
     {
@@ -32,6 +36,7 @@ public class BooksController : ControllerBase
         return Ok(book);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPost]
     public ActionResult<BookDto> Create(Book book)
     {
@@ -43,6 +48,7 @@ public class BooksController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = createdBook.Id }, createdBook);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     public ActionResult<BookDto> Update(int id, Book updatedBook)
     {
@@ -54,11 +60,12 @@ public class BooksController : ControllerBase
         return Ok(result);
     }
 
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {
         var result = _booksService.Delete(id);
-        if (result is false)
+        if (!result)
             return NotFound();
 
         return NoContent();
