@@ -1,5 +1,6 @@
 using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BookStore.Presentation.Controllers;
@@ -49,13 +50,15 @@ public class AuthController : ControllerBase
         return Ok(result);
     }
 
-    [HttpPost("refresh")]
-    public ActionResult<AuthResponse> Refresh(RefreshRequest request)
+    [Authorize]
+    [HttpPost("logout")]
+    public IActionResult Logout()
     {
-        var result = _authService.Refresh(request);
-        if (result is null)
-            return Unauthorized("Invalid or expired refresh token.");
+        var username = User.Identity?.Name;
+        if (username is null)
+            return Unauthorized();
 
-        return Ok(result);
+        _authService.Logout(username);
+        return NoContent();
     }
 }

@@ -66,13 +66,15 @@ internal sealed class AuthService : IAuthService
         return GenerateResponse(user);
     }
 
-    public AuthResponse? Refresh(RefreshRequest request)
+    public bool Logout(string username)
     {
-        var user = _userRepository.GetByRefreshToken(request.RefreshToken);
-        if (user is null || user.RefreshTokenExpiry < DateTime.UtcNow)
-            return null;
+        var user = _userRepository.GetByUsername(username);
+        if (user is null)
+            return false;
 
-        return GenerateResponse(user);
+        user.RefreshToken = null;
+        user.RefreshTokenExpiry = null;
+        return true;
     }
 
     private AuthResponse GenerateResponse(User user)
