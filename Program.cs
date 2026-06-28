@@ -5,6 +5,7 @@ using BookStore.Presentation.Repositories;
 using BookStore.Presentation.Services;
 using BookStore.Presentation.Validations;
 using FluentValidation;
+using Serilog;
 
 namespace BookStore.Presentation;
 
@@ -12,7 +13,16 @@ public class Program
 {
     public static void Main(string[] args)
     {
+        Log.Logger = new LoggerConfiguration()
+            .WriteTo.Console()
+            .WriteTo.File(
+                "logs/log-.txt",
+                rollingInterval: RollingInterval.Day)
+            .CreateLogger();
+
         var builder = WebApplication.CreateBuilder(args);
+
+        builder.Host.UseSerilog();
 
         // Add services to the container.
         builder.Services.AddControllers();
@@ -23,6 +33,8 @@ public class Program
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+
 
         var app = builder.Build();
 
