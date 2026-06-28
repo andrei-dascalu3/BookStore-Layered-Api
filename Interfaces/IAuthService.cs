@@ -6,4 +6,5 @@ public interface IAuthService
 {
     AuthResponse? Register(RegisterRequest request);
     AuthResponse? Login(LoginRequest request);
+    AuthResponse? Refresh(RefreshRequest request);
 }

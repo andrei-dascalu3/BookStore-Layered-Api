@@ -24,6 +24,11 @@ internal sealed class UserRepository : IUserRepository
         return _users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
     }
 
+    public User? GetByRefreshToken(string refreshToken)
+    {
+        return _users.FirstOrDefault(u => u.RefreshToken == refreshToken);
+    }
+
     public User Add(User user)
     {
         user.Id = _nextId++;

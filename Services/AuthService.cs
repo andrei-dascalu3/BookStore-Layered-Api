@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Models;
@@ -56,6 +57,15 @@ internal sealed class AuthService : IAuthService
         return GenerateResponse(user);
     }
 
+    public AuthResponse? Refresh(RefreshRequest request)
+    {
+        var user = _userRepository.GetByRefreshToken(request.RefreshToken);
+        if (user is null || user.RefreshTokenExpiry < DateTime.UtcNow)
+            return null;
+
+        return GenerateResponse(user);
+    }
+
     private AuthResponse GenerateResponse(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
@@ -77,9 +87,16 @@ internal sealed class AuthService : IAuthService
             expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
             signingCredentials: credentials);
 
+        var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        var refreshTokenExpirationDays = _configuration.GetValue<int>("Jwt:RefreshTokenExpirationDays");
+
+        user.RefreshToken = refreshToken;
+        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(refreshTokenExpirationDays);
+
         return new AuthResponse
         {
-            AccessToken = new JwtSecurityTokenHandler().WriteToken(token)
+            AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
+            RefreshToken = refreshToken
         };
     }
 }
