@@ -36,7 +36,7 @@ public class BooksController : ControllerBase
         return Ok(book);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "RequireAdminRole")]
     [HttpPost]
     public ActionResult<BookDto> Create(Book book)
     {
@@ -48,7 +48,7 @@ public class BooksController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = createdBook.Id }, createdBook);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "RequireAdminRole")]
     [HttpPut("{id}")]
     public ActionResult<BookDto> Update(int id, Book updatedBook)
     {
@@ -60,7 +60,7 @@ public class BooksController : ControllerBase
         return Ok(result);
     }
 
-    [Authorize(Roles = "Admin")]
+    [Authorize(Policy = "RequireAdminRole")]
     [HttpDelete("{id}")]
     public IActionResult Delete(int id)
     {

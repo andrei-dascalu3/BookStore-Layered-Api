@@ -56,7 +56,14 @@ public class Program
             };
         });
 
-        builder.Services.AddAuthorization();
+        builder.Services.AddAuthorization(options =>
+        {
+            options.AddPolicy("RequireAdminRole", policy =>
+                policy.RequireRole("Admin"));
+
+            options.AddPolicy("RequireAuthenticatedUser", policy =>
+                policy.RequireAuthenticatedUser());
+        });
 
         // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
         builder.Services.AddEndpointsApiExplorer();
