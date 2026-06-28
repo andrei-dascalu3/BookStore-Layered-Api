@@ -66,6 +66,15 @@ internal sealed class AuthService : IAuthService
         return GenerateResponse(user);
     }
 
+    public AuthResponse? Refresh(RefreshRequest request)
+    {
+        var user = _userRepository.GetByRefreshToken(request.RefreshToken);
+        if (user is null || user.RefreshTokenExpiry < DateTime.UtcNow)
+            return null;
+
+        return GenerateResponse(user);
+    }
+
     private AuthResponse GenerateResponse(User user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));

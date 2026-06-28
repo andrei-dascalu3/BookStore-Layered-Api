@@ -48,4 +48,14 @@ public class AuthController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpPost("refresh")]
+    public ActionResult<AuthResponse> Refresh(RefreshRequest request)
+    {
+        var result = _authService.Refresh(request);
+        if (result is null)
+            return Unauthorized("Invalid or expired refresh token.");
+
+        return Ok(result);
+    }
 }
