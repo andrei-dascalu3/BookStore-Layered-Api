@@ -19,8 +19,10 @@ public class AuthController : ControllerBase
     public ActionResult<AuthResponse> Register(RegisterRequest request)
     {
         var result = _authService.Register(request);
-        if (result is null)
+        if (result == null)
+        {
             return Conflict("Username already exists.");
+        }
 
         return Ok(result);
     }
@@ -29,8 +31,10 @@ public class AuthController : ControllerBase
     public ActionResult<AuthResponse> Login(LoginRequest request)
     {
         var result = _authService.Login(request);
-        if (result is null)
+        if (result == null)
+        {
             return Unauthorized("Invalid username or password.");
+        }
 
         return Ok(result);
     }

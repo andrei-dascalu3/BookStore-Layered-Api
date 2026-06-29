@@ -34,7 +34,7 @@ public class Program
         builder.Services.AddScoped<IRepository, Repository>();
         builder.Services.AddScoped<IValidator<Book>, BookValidator>();
 
-        builder.Services.AddSingleton<UserRepository>();
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IAuthService, AuthService>();
 
         builder.Services.AddAuthentication(options =>

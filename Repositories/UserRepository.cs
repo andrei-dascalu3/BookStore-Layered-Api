@@ -1,12 +1,13 @@
 using System.Security.Cryptography;
+using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Models;
 
 namespace BookStore.Presentation.Repositories;
 
-public class UserRepository
+internal sealed class UserRepository : IUserRepository
 {
-    private static readonly List<User> _users = new()
-    {
+    private static readonly List<User> _users =
+    [
         new User
         {
             Id = 1,
@@ -14,12 +15,14 @@ public class UserRepository
             PasswordHash = HashPassword("admin123"),
             Role = "Admin"
         }
-    };
+    ];
 
     private static int _nextId = 2;
 
-    public User? GetByUsername(string username) =>
-        _users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+    public User? GetByUsername(string username)
+    {
+        return _users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
+    }
 
     public User Add(User user)
     {

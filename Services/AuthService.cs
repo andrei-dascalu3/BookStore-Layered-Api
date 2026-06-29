@@ -10,10 +10,10 @@ namespace BookStore.Presentation.Services;
 
 internal sealed class AuthService : IAuthService
 {
-    private readonly UserRepository _userRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IConfiguration _configuration;
 
-    public AuthService(UserRepository userRepository, IConfiguration configuration)
+    public AuthService(IUserRepository userRepository, IConfiguration configuration)
     {
         _userRepository = userRepository;
         _configuration = configuration;
@@ -21,10 +21,13 @@ internal sealed class AuthService : IAuthService
 
     public AuthResponse? Register(RegisterRequest request)
     {
-        if (_userRepository.GetByUsername(request.Username) is not null)
+        var user = _userRepository.GetByUsername(request.Username);
+        if (user != null)
+        {
             return null;
+        }
 
-        var user = new User
+        user = new User
         {
             Username = request.Username,
             PasswordHash = UserRepository.HashPassword(request.Password),
@@ -39,12 +42,16 @@ internal sealed class AuthService : IAuthService
     public AuthResponse? Login(LoginRequest request)
     {
         var user = _userRepository.GetByUsername(request.Username);
-        if (user is null)
+        if (user == null)
+        {
             return null;
+        }
 
         var hash = UserRepository.HashPassword(request.Password);
         if (user.PasswordHash != hash)
+        {
             return null;
+        }
 
         return GenerateResponse(user);
     }
