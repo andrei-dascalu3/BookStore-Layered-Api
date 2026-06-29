@@ -36,6 +36,7 @@ public class Program
 
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IAuthService, AuthService>();
+        builder.Services.AddScoped<IFilesService, FilesService>();
 
         builder.Services.AddAuthentication(options =>
         {

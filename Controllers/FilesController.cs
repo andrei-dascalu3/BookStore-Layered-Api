@@ -1,3 +1,4 @@
+using BookStore.Presentation.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,12 +9,11 @@ namespace BookStore.Presentation.Controllers;
 [Authorize]
 public class FilesController : ControllerBase
 {
-    private readonly string _uploadsPath;
+    private readonly IFilesService _filesService;
 
-    public FilesController(IWebHostEnvironment env)
+    public FilesController(IFilesService filesService)
     {
-        _uploadsPath = Path.Combine(env.ContentRootPath, "uploads");
-        Directory.CreateDirectory(_uploadsPath);
+        _filesService = filesService;
     }
 
     [HttpPost("upload")]
@@ -22,12 +22,7 @@ public class FilesController : ControllerBase
         if (file.Length == 0)
             return BadRequest("File is empty.");
 
-        var fileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
-        var filePath = Path.Combine(_uploadsPath, fileName);
-
-        using var stream = new FileStream(filePath, FileMode.Create);
-        await file.CopyToAsync(stream);
-
+        var fileName = await _filesService.UploadAsync(file);
         return Ok(new { fileName });
     }
 
@@ -35,19 +30,12 @@ public class FilesController : ControllerBase
     [HttpGet("{fileName}")]
     public IActionResult Download(string fileName)
     {
-        var filePath = Path.Combine(_uploadsPath, fileName);
-
-        if (!System.IO.File.Exists(filePath))
-            return NotFound();
-
-        var contentType = Path.GetExtension(fileName).ToLowerInvariant() switch
+        var result = _filesService.GetFile(fileName);
+        if (result == null)
         {
-            ".jpg" or ".jpeg" => "image/jpeg",
-            ".png" => "image/png",
-            ".pdf" => "application/pdf",
-            _ => "application/octet-stream"
-        };
+            return NotFound();
+        }
 
-        return PhysicalFile(filePath, contentType, fileName);
+        return PhysicalFile(result.FilePath, result.ContentType, result.FileName);
     }
 }
