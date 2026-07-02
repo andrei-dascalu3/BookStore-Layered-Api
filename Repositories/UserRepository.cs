@@ -1,6 +1,7 @@
-using System.Security.Cryptography;
 using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Models;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace BookStore.Presentation.Repositories;
 
@@ -12,7 +13,7 @@ internal sealed class UserRepository : IUserRepository
         {
             Id = 1,
             Username = "admin",
-            PasswordHash = HashPassword("admin123"),
+            PasswordHash = Convert.ToBase64String(SHA256.HashData(Encoding.UTF8.GetBytes("admin123"))),
             Role = "Admin"
         }
     ];
@@ -24,9 +25,9 @@ internal sealed class UserRepository : IUserRepository
         return _users.FirstOrDefault(u => u.Username.Equals(username, StringComparison.OrdinalIgnoreCase));
     }
 
-    public User? GetByRefreshToken(string refreshToken)
+    public User? GetById(int id)
     {
-        return _users.FirstOrDefault(u => u.RefreshToken == refreshToken);
+        return _users.FirstOrDefault(u => u.Id == id);
     }
 
     public User Add(User user)
@@ -34,11 +35,5 @@ internal sealed class UserRepository : IUserRepository
         user.Id = _nextId++;
         _users.Add(user);
         return user;
-    }
-
-    public static string HashPassword(string password)
-    {
-        var hash = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(password));
-        return Convert.ToBase64String(hash);
     }
 }

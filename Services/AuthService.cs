@@ -2,22 +2,33 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+
 using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Models;
-using BookStore.Presentation.Repositories;
+
 using Microsoft.IdentityModel.Tokens;
 
 namespace BookStore.Presentation.Services;
 
 internal sealed class AuthService : IAuthService
 {
-    private readonly IUserRepository _userRepository;
-    private readonly IConfiguration _configuration;
+    private const string RefreshTokenCookieName = "refreshToken";
 
-    public AuthService(IUserRepository userRepository, IConfiguration configuration)
+    private readonly IConfiguration _configuration;
+    private readonly IUserRepository _userRepository;
+    private readonly IRefreshTokenRepository _refreshTokenRepository;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public AuthService(
+        IConfiguration configuration,
+        IUserRepository userRepository,
+        IRefreshTokenRepository refreshTokenRepository,
+        IHttpContextAccessor httpContextAccessor)
     {
-        _userRepository = userRepository;
         _configuration = configuration;
+        _userRepository = userRepository;
+        _refreshTokenRepository = refreshTokenRepository;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public AuthResponse? Register(RegisterRequest request)
@@ -31,7 +42,7 @@ internal sealed class AuthService : IAuthService
         user = new User
         {
             Username = request.Username,
-            PasswordHash = UserRepository.HashPassword(request.Password),
+            PasswordHash = GetHash(request.Password),
             Role = "User"
         };
 
@@ -48,7 +59,7 @@ internal sealed class AuthService : IAuthService
             return null;
         }
 
-        var hash = UserRepository.HashPassword(request.Password);
+        var hash = GetHash(request.Password);
         if (user.PasswordHash != hash)
         {
             return null;
@@ -57,11 +68,26 @@ internal sealed class AuthService : IAuthService
         return GenerateResponse(user);
     }
 
-    public AuthResponse? Refresh(RefreshRequest request)
+    public AuthResponse? Refresh()
     {
-        var user = _userRepository.GetByRefreshToken(request.RefreshToken);
-        if (user is null || user.RefreshTokenExpiry < DateTime.UtcNow)
+        var refreshTokenValue = _httpContextAccessor.HttpContext?.Request.Cookies[RefreshTokenCookieName];
+        if (string.IsNullOrEmpty(refreshTokenValue))
+        {
             return null;
+        }
+
+        var refreshTokenHash = GetHash(refreshTokenValue);
+        var refreshToken = _refreshTokenRepository.GetByHash(refreshTokenHash);
+        if (refreshToken == null || refreshToken.TokenExpiry < DateTime.UtcNow)
+        {
+            return null;
+        }
+
+        var user = _userRepository.GetById(refreshToken.UserId);
+        if (user == null)
+        {
+            return null;
+        }
 
         return GenerateResponse(user);
     }
@@ -69,11 +95,14 @@ internal sealed class AuthService : IAuthService
     public bool Logout(string username)
     {
         var user = _userRepository.GetByUsername(username);
-        if (user is null)
+        if (user == null)
+        {
             return false;
+        }
 
-        user.RefreshToken = null;
-        user.RefreshTokenExpiry = null;
+        this._refreshTokenRepository.DeleteByUserId(user.Id);
+        DeleteRefreshTokenCookie();
+
         return true;
     }
 
@@ -98,16 +127,47 @@ internal sealed class AuthService : IAuthService
             expires: DateTime.UtcNow.AddMinutes(expirationMinutes),
             signingCredentials: credentials);
 
-        var refreshToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
+        var refreshTokenValue = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64));
         var refreshTokenExpirationDays = _configuration.GetValue<int>("Jwt:RefreshTokenExpirationDays");
+        var refreshTokenExpiry = DateTime.UtcNow.AddDays(refreshTokenExpirationDays);
+        var refreshToken = new RefreshToken
+        {
+            Hash = GetHash(refreshTokenValue),
+            TokenExpiry = refreshTokenExpiry,
+            UserId = user.Id
+        };
+        _refreshTokenRepository.DeleteByUserId(user.Id);
+        _refreshTokenRepository.Create(refreshToken);
 
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiry = DateTime.UtcNow.AddDays(refreshTokenExpirationDays);
+        SetRefreshTokenCookie(refreshTokenValue, refreshTokenExpiry);
 
         return new AuthResponse
         {
-            AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
-            RefreshToken = refreshToken
+            AccessToken = new JwtSecurityTokenHandler().WriteToken(token)
         };
+    }
+
+    private void SetRefreshTokenCookie(string value, DateTime expiry)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = expiry
+        };
+
+        _httpContextAccessor.HttpContext?.Response.Cookies.Append(RefreshTokenCookieName, value, cookieOptions);
+    }
+
+    private void DeleteRefreshTokenCookie()
+    {
+        _httpContextAccessor.HttpContext?.Response.Cookies.Delete(RefreshTokenCookieName);
+    }
+
+    private static string GetHash(string password)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(password));
+        return Convert.ToBase64String(hash);
     }
 }

@@ -8,5 +8,5 @@ public interface IUserRepository
 
     User Add(User user);
 
-    User? GetByRefreshToken(string refreshToken);
+    User? GetById(int id);
 }

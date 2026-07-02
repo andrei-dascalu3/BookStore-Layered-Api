@@ -41,11 +41,13 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public ActionResult<AuthResponse> Refresh(RefreshRequest request)
+    public ActionResult<AuthResponse> Refresh()
     {
-        var result = _authService.Refresh(request);
-        if (result is null)
+        var result = _authService.Refresh();
+        if (result == null)
+        {
             return Unauthorized("Invalid or expired refresh token.");
+        }
 
         return Ok(result);
     }
@@ -55,8 +57,10 @@ public class AuthController : ControllerBase
     public IActionResult Logout()
     {
         var username = User.Identity?.Name;
-        if (username is null)
+        if (username == null)
+        {
             return Unauthorized();
+        }
 
         _authService.Logout(username);
         return NoContent();

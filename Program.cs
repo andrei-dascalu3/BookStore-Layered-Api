@@ -30,12 +30,11 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddControllers();
-        builder.Services.AddScoped<IBooksService, BooksService>();
-        builder.Services.AddScoped<IRepository, Repository>();
+        builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IValidator<Book>, BookValidator>();
 
-        builder.Services.AddScoped<IUserRepository, UserRepository>();
-        builder.Services.AddScoped<IAuthService, AuthService>();
+        InjectServices(builder);
+        InjectRepositories(builder);
 
         builder.Services.AddAuthentication(options =>
         {
@@ -115,5 +114,18 @@ public class Program
         app.MapControllers();
 
         app.Run();
+    }
+
+    private static void InjectServices(WebApplicationBuilder builder)
+    {
+        builder.Services.AddScoped<IBooksService, BooksService>();
+        builder.Services.AddScoped<IAuthService, AuthService>();
+    }
+
+    private static void InjectRepositories(WebApplicationBuilder builder)
+    {
+        builder.Services.AddScoped<IRepository, Repository>();
+        builder.Services.AddScoped<IUserRepository, UserRepository>();
+        builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
     }
 }
