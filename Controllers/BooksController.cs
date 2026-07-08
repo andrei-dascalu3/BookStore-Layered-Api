@@ -2,6 +2,7 @@ using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Query;
 
 namespace BookStore.Presentation.Controllers;
 
@@ -18,6 +19,7 @@ public class BooksController : ControllerBase
     }
 
     [AllowAnonymous]
+    [EnableQuery]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<BookDto>>> GetAll()
     {

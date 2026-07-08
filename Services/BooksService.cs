@@ -16,12 +16,12 @@ namespace BookStore.Presentation.Services
             _validator = validator;
         }
 
-        public async Task<IEnumerable<BookDto>> GetAllAsync()
+        public async Task<IQueryable<BookDto>> GetAllAsync()
         {
             var books = await _repository.GetAllAsync();
             var bookDto = books.Adapt<List<BookDto>>();
 
-            return bookDto;
+            return bookDto.AsQueryable();
         }
 
         public BookDto? GetById(int id)

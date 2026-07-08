@@ -7,6 +7,7 @@ using BookStore.Presentation.Services;
 using BookStore.Presentation.Validations;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.OData;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -29,7 +30,13 @@ public class Program
         builder.Host.UseSerilog();
 
         // Add services to the container.
-        builder.Services.AddControllers();
+        builder.Services.AddControllers()
+            .AddOData(options => options
+                .Select()
+                .Filter()
+                .OrderBy()
+                .Count()
+                .SetMaxTop(100));
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IValidator<Book>, BookValidator>();
 
