@@ -1,4 +1,4 @@
-using System.Text;
+using BookStore.Presentation.Database;
 using BookStore.Presentation.Interfaces;
 using BookStore.Presentation.Middleware;
 using BookStore.Presentation.Models;
@@ -7,9 +7,11 @@ using BookStore.Presentation.Services;
 using BookStore.Presentation.Validations;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.Text;
 
 namespace BookStore.Presentation;
 
@@ -92,7 +94,8 @@ public class Program
             });
         });
 
-
+        builder.Services.AddDbContext<BookStoreDbContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
         var app = builder.Build();
 
