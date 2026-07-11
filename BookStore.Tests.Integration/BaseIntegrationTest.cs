@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using BookStore.Presentation.Database;
-using BookStore.IntegrationTests;
 
 namespace BookStore.IntegrationTests;
 
@@ -28,7 +27,6 @@ public abstract class BaseIntegrationTest : IAsyncLifetime
     public async Task DisposeAsync()
     {
         await Factory.ResetDatabaseAsync();
-
         Scope.Dispose();
     }
 }

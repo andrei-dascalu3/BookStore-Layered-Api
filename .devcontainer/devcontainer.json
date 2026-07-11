@@ -1,0 +1,8 @@
+{
+  "name": "C# BookStore Codespace Environment",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:8.0",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:1": {}
+  },
+  "postCreateCommand": "docker compose up -d && echo 'Waiting for SQL Server to warm up...' && sleep 15 && dotnet tool restore || dotnet tool install --global dotnet-ef && cd BookStore.Presentation && dotnet ef database update"
+}
