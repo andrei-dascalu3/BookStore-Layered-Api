@@ -1,20 +1,26 @@
-﻿using System.Data.Common;
+﻿using BookStore.Presentation;
 using BookStore.Presentation.Database;
+using Microsoft.AspNetCore.Authorization.Policy;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Data.SqlClient;
+using Moq;
 using Respawn;
-using BookStore.Presentation;
+using System.Data.Common;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 
-namespace BookStore.IntegrationTests;
+namespace BookStore.Tests.Integration;
 
 public class IntegrationTestFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
-    private DbConnection _dbConnection = default!;
-    private Respawner _respawner = default!;
+    private DbConnection _dbConnection = null!;
+    private Respawner _respawner = null!;
 
     public string ConnectionString { get; set; } = "Server=(localdb)\\MSSQLLocalDB;Database=BookStoreTest;Trusted_Connection=True;TrustServerCertificate=True";
 
@@ -23,7 +29,11 @@ public class IntegrationTestFactory : WebApplicationFactory<Program>, IAsyncLife
         builder.ConfigureTestServices(services =>
         {
             var descriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<BookStoreDbContext>));
-            if (descriptor != null) services.Remove(descriptor);
+
+            if (descriptor != null)
+            {
+                services.Remove(descriptor);
+            }
 
             services.AddDbContext<BookStoreDbContext>(options =>
             {
@@ -40,7 +50,7 @@ public class IntegrationTestFactory : WebApplicationFactory<Program>, IAsyncLife
         _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
         {
             DbAdapter = DbAdapter.SqlServer,
-            SchemasToInclude = new[] { "dbo" }
+            SchemasToInclude = ["dbo"]
         });
     }
 

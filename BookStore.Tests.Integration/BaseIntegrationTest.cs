@@ -1,7 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using BookStore.Presentation.Database;
+﻿using BookStore.Presentation.Database;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace BookStore.IntegrationTests;
+namespace BookStore.Tests.Integration;
 
 [Collection("IntegrationTests")]
 public abstract class BaseIntegrationTest : IAsyncLifetime
