@@ -16,7 +16,7 @@ public class IntegrationTestFactory : WebApplicationFactory<Program>, IAsyncLife
     private DbConnection _dbConnection = default!;
     private Respawner _respawner = default!;
 
-    public string ConnectionString { get; set; } = "Server=localhost,1433;Database=BookStoreTest;User Id=sa;Password=pass123;TrustServerCertificate=True;";
+    public string ConnectionString { get; set; } = "Server=(localdb)\\MSSQLLocalDB;Database=BookStoreTest;Trusted_Connection=True;TrustServerCertificate=True";
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {

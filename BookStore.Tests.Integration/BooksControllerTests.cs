@@ -15,7 +15,6 @@ public class BooksControllerTests : BaseIntegrationTest
         var testBook = new Book { Title = "Test Book", AuthorName = "Author", Genre = "SciFi", Price = 12.99m, PublishedDate = new DateOnly(2020, 1, 1) };
         DbContext.Books.Add(testBook);
         await DbContext.SaveChangesAsync();
-        DbContext.Entry(testBook).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
 
         // Act
         var response = await HttpClient.GetAsync("api/books");

@@ -1,4 +1,9 @@
 # BookStore-Layered-Api
 Summer practice: Tutorial project for N-tier (layered) API
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/andrei-dascalu3/BookStore-Layered-Api)
+# Integration tests
+
+## Setup
+1. Open SSMS, right click on folder "Databases", click "New Database..."
+2. Give name ```BookStoreTest```
+3. Run script ```create-tables.sql``` from Scripts folder
