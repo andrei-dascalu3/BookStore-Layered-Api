@@ -5,7 +5,7 @@ using Mapster;
 
 namespace BookStore.Presentation.Services
 {
-    internal sealed class BooksService : IBooksService
+    public sealed class BooksService : IBooksService
     {
         private readonly IRepository _repository;
         private readonly IValidator<Book> _validator;
