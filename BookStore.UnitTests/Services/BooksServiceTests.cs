@@ -8,13 +8,13 @@ using Shouldly;
 
 namespace BookStore.UnitTests.Services
 {
-    public class BooksServiceeTests
+    public class BooksServiceTests
     {
         private readonly Mock<IRepository> _repositoryMock = new();
         private readonly Mock<IValidator<Book>> _validatorMock = new();
         private readonly BooksService _sut;
 
-        public BooksServiceeTests()
+        public BooksServiceTests()
         {
             _sut = new BooksService(_repositoryMock.Object, _validatorMock.Object);
         }
